@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Bell Control System</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f7f7f7; }
+        .container { margin-top: 50px; }
+        .card { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .card-header { background-color: #007bff; color: white; }
+        .form-control { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header text-center">
+                <h2>Department Bell Control System</h2>
+            </div>
+            <div class="card-body">
+                <form id="bellForm">
+                    <div class="form-group">
+                        <label for="type">Bell Type</label>
+                        <input type="text" class="form-control" id="type" name="type" placeholder="Normal or Exam" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Bell Time (HH:MM:SS)</label>
+                        <input type="text" class="form-control" id="time" name="time" placeholder="Enter time (e.g., 09:00:00)" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Set Bell</button>
+                </form>
+                <hr>
+                <div class="text-center">
+                    <p><strong>Current Bell:</strong> <span id="bellDetails">Normal - 09:00:00</span></p>
+                    <p><strong>GPS Location:</strong> <span id="gpsLocation">Waiting for GPS signal...</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Replace this with your ESP32's IP address
+        const ESP32_IP = "http://192.168.1.100"; 
+
+        // Form submission handler
+        document.getElementById('bellForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const bellType = document.getElementById('type').value;
+            const bellTime = document.getElementById('time').value;
+
+            fetch(`${ESP32_IP}/setBell`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `type=${bellType}&time=${bellTime}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert("Bell time set successfully");
+            })
+            .catch(error => {
+                alert("Error: " + error);
+            });
+        });
+
+        // Fetch and update current bell details
+        fetch(`${ESP32_IP}/currentBell`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('bellDetails').textContent = data;
+            });
+
+        // Fetch and update GPS location
+        fetch(`${ESP32_IP}/getGPS`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('gpsLocation').textContent = data;
+            });
+    </script>
+</body>
+</html>
