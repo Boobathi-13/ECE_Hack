@@ -1,1 +1,1 @@
-# ECE_Hack
+# ECE_Hackathon
